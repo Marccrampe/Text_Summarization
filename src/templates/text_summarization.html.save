@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modèle de résumés de texte automatiques</title>
+    <style>
+        /* Vos styles CSS existants */
+
+        /* Ajout de nouveaux styles */
+        .summary {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .button-container button {
+            margin-right: 10px;
+        }
+    </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #cf2236;
+            color: #dfc8c8;
+            padding: 20px;
+            text-align: center;
+            text-decoration: underline;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .left-column {
+            flex: 1;
+            text-align: center;
+        }
+
+        .right-column {
+            flex: 1;
+        }
+
+        textarea {
+            width: 90%;
+            height: 400px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #de2a2a;
+            color: #edd0d0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #cd7766;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #888888;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            background-color: #f3f3f3;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Modèle de résumé de textes automatique</h1>
+    </div>
+    <div class="content">
+        <div class="left-column">
+            <form method="POST" action="/">
+                <textarea name="texte" placeholder="Entrez le texte choisi">{{ texte }}</textarea>
+                <br>               
+                <label for="modele">Choisissez un modèle :</label>
+                <select name="modele" id="modele">
+                    <option value="t5-base"> Google T5 Base</option>
+                    <option value="facebook/bart-large-cnn">Facebook BART</option>
+                    <option value="t5-small">Google T5 Small (Rapide)</option>
+                    <option value="#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Jun 14 09:19:23 2023
+
+@author: marccrampe
+"""
+
+from flask import Flask, request, render_template
+from transformers import pipeline
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def accueil():
+    if request.method == 'POST':
+        texte = request.form['texte']
+        modele = request.form['modele']
+        
+        summarizer = pipeline("summarization", model=modele)
+        
+        chunks = []  # Liste pour stocker les morceaux du texte
+        chunk_size = 512  # Taille maximale d'un morceau
+        
+        try:
+            # Découper le texte en morceaux
+            for i in range(0, len(texte), chunk_size):
+                chunk = texte[i:i+chunk_size]
+                chunks.append(chunk)
+        
+            summaries = []  # Liste pour stocker les résumés partiels
+        
+            # Générer des résumés pour chaque morceau
+            for chunk in chunks:
+                summary = summarizer(chunk, max_length=60, min_length=30, do_sample =True)
+                summaries.append(summary[0]['summary_text'])
+        
+            # Combinaison des résumés partiels
+            sum_text = ' '.join(summaries)
+            
+        except Exception as e:
+            sum_text = 'Erreur de résumé : ' + str(e)
+             
+        return render_template('text_summarization.html', texte_synthetise=sum_text,modele =modele,texte=texte)
+    return render_template('text_summarization.html')">GPT 2 </option>
+                </select>
+                <br>
+                <button type="submit">Résumer</button>
+                <button type="button" onclick="resetForm()">Réinitialiser</button>  
+                <br>              
+            </form>     
+        </div>
+        <div class="right-column">
+            <div style="text-align: left;">
+                <p><strong><span style="font-size: 20px;">Texte résumé avec le modèle {{ modele }} :</span></strong></p>
+                {% if texte_synthetise %}
+                <div class="summary">
+                    <p>{{ texte_synthetise }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <img src="{{ url_for('static', filename='logo_sciences_po.png') }}" alt="Logo" class="logo" style="width: 250px;">
+
+    <div class="footer">
+        Crédit : Marc CRAMPE
+    </div>
+
+    <script>
+        function resetForm() {
+            // Réinitialiser le champ de texte et le contenu du résumé
+            document.querySelector('textarea[name="texte"]').value = '{{ texte_saisi }}';
+            var summaryElement = document.querySelector('.summary');
+            if (summaryElement) {
+                summaryElement.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>

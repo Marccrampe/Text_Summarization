@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modèle de résumés de texte automatiques</title>
+    <style>
+        /* Vos styles CSS existants */
+
+        /* Ajout de nouveaux styles */
+        .summary {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .button-container button {
+            margin-right: 10px;
+        }
+    </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #4522cf;
+            color: #dfc8c8;
+            padding: 20px;
+            text-align: center;
+            text-decoration: underline;
+        }
+
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .left-column {
+            flex: 1;
+            text-align: center;
+        }
+
+        .right-column {
+            flex: 1;
+        }
+
+        textarea {
+            width: 90%;
+            height: 400px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2d2ade;
+            color: #edd0d0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #666dcd;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #888888;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            background-color: #f3f3f3;
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Modèle de résumé de textes automatique</h1>
+    </div>
+    <div class="content">
+        <div class="left-column">
+            <form method="POST" action="/">
+                <textarea name="texte" placeholder="Entrez le texte choisi">{{ texte }}</textarea>
+                <br>
+                <label for="modele">Choisissez un modèle :</label>
+                <select name="modele" id="modele">
+                    <option value="t5-base" {% if modele == "t5-base" %}selected{% endif %}> Google T5 Base</option>
+                    <option value="facebook/bart-large-cnn" {% if modele == "facebook/bart-large-cnn" %}selected{% endif %}>Facebook BART</option>
+                    <option value="t5-small" {% if modele == "t5-small" %}selected{% endif %}>Google T5 Small (Rapide)</option>
+                </select>
+                <br>
+                <label for="langue">Choisissez la langue du résumé :</label>
+                <select name="langue" id="langue">
+                    <option value="fr">Français</option>
+                    <option value="en">Anglais</option>
+                    <option value="es">Espagnol</option>
+                    <option value="de">Allemand</option>
+                    <option value="it">Italien</option>
+
+                    <!-- Ajoutez ici les autres langues que vous souhaitez inclure -->
+                </select>
+                <br>
+                <button type="submit">Résumer</button>
+                <button type="button" onclick="resetForm()">Réinitialiser</button>
+                <br>
+            </form>
+        </div>
+        <div class="right-column">
+            <div style="text-align: left;">
+                <p><strong><span style="font-size: 20px;">Texte résumé avec le modèle {{ modele }} :</span></strong></p>
+                {% if texte_synthetise %}
+                <div class="summary">
+                    <p>{{ texte_synthetise }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <img src="{{ url_for('static', filename='Put your logo') }}" alt="Logo" class="logo" style="width: 200px;">
+
+    <div class="footer">
+        Crédit : Marc CRAMPE
+    </div>
+
+    <script>
+        function resetForm() {
+            // Réinitialiser le champ de texte et le contenu du résumé
+            document.querySelector('textarea[name="texte"]').value = '{{ texte_saisi }}';
+            var summaryElement = document.querySelector('.summary');
+            if (summaryElement) {
+                summaryElement.innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>

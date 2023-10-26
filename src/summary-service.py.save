@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Jun  5 14:59:05 2023
+
+@author: marccrampe
+"""
+
+"""
+
+L'idée ici est de récupérer le texte tapé sur l'app web ,
+ de le résumé bia le modèle choisi, et de l'envoyer à l'app web
+ 
+ """
+ 
+from flask import Flask,request, render_template
+from transformers import pipeline
+
+"""on définie l'app pour notre module Flask"""
+
+app = Flask(__name__)
+
+
+"""
+On associe le chemin de notre URL a notre action, ici on reste sur la page d'accueil"""
+
+
+"""
+Ici notre fonction daccueil est directement la fenêtre de resumés
+
+ """
+ 
+@app.route('/', methods=['GET', 'POST'])
+
+def accueil():
+    """Lorsque le serveur recoit les données(modele+texte)"""
+    if request.method == 'POST':
+        """On récupere le texte tapé"""
+        texte = request.form['texte']
+        
+        """On récupere le modele selectionné"""
+        modele = request.form['modele']
+        print(modele)
+       
+        """
+ """
+        On va résumer le texte avec le modele choisi:
+            
+            ici on utilise un NN Transformer Pipeline qui utilise des modèles deja entraînes
+            
+            """    
+        
+        summarizer = pipeline("summarization", model=modele)
+        texte_synthetise=summarizer(texte, max_length=800, min_length=30, do_sample=False)
+        """La sortie est un array d'un dictionnaire, alors je récupère uniqument le contenu"""
+        texte_1 =texte_synthetise[0]
+        sum_text = texte_1['summary_text']
+        
+        """On renvoie le texte résumé à l'application web, via notre template html"""
+        return render_template('accueil.html', texte_synthetise=sum_text, modele = modele)
+    return render_template('accueil.html

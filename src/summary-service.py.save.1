@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+from flask import Flask, request, render_template
+from transformers import pipeline
+
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def accueil():
+    if request.method == 'POST':
+        texte = request.form['texte']
+        modele = request.form['modele']
+     except Exception as e:
+            sum_text = 'Erreur de résumé : ' + str(e)
+            traceback.print_exc()  
+            """Afficher la trace de l'erreur"""   
+        summarizer = pipeline("summarization", model=modele)
+        
+        chunks = []  # Liste pour stocker les morceaux du texte
+        chunk_size = 512  # Taille maximale d'un morceau
+        
+        # Découper le texte en morceaux
+        for i in range(0, len(texte), chunk_size):
+            chunk = texte[i:i+chunk_size]
+            chunks.append(chunk)
+        
+        summaries = []  # Liste pour stocker les résumés partiels
+        
+        # Générer des résumés pour chaque morceau
+        for chunk in chunks:
+            summary = summarizer(chunk, max_length=60, min_length=30, do_sample=False)
+            summaries.append(summary[0]['summary_text'])
+        
+        # Combinaison des résumés partiels
+        sum_text = ' '.join(summaries)
+        
+        return render_template('text_summarization.html', texte_synthetise=sum_text, modele=modele,texte=texte)
+    
+    return render_template('text_summarization.html')
+
